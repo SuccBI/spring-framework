@@ -98,22 +98,29 @@ public abstract class ResourceHandlerUtils {
 		}
 		return (slash ? "/" : "");
 	}
-
+	
 	private static String normalizePath(String path) {
-		if (path.contains("%")) {
-			try {
-				path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+		String result = path;
+		if (result.contains("%")) {
+			result = decode(result);
+			if (result.contains("%")) {
+				result = decode(result);
 			}
-			catch (Exception ex) {
-				return "";
-			}
-			if (path.contains("../")) {
-				path = StringUtils.cleanPath(path);
+			if (result.contains("../")) {
+				return StringUtils.cleanPath(result);
 			}
 		}
 		return path;
 	}
 
+	private static String decode(String path) {
+		try {
+			return URLDecoder.decode(path, StandardCharsets.UTF_8);
+		}
+		catch (Exception ex) {
+			return "";
+		}
+	}
 
 	/**
 	 * Whether the given input path is invalid as determined by

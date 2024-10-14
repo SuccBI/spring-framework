@@ -584,12 +584,23 @@ public class ResourceWebHandlerTests {
 		assertResponseBody(exchange, ".");
 	}
 
+<<<<<<< HEAD
 	@Test
 	public void partialContentSuffixRange() {
 		MockServerHttpRequest request = MockServerHttpRequest.get("").header("range", "bytes=-1").build();
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
 		setPathWithinHandlerMapping(exchange, "foo.txt");
 		this.handler.handle(exchange).block(TIMEOUT);
+=======
+			testInvalidPath("file:" + secretPath, handler);
+			testInvalidPath("/file:" + secretPath, handler);
+			testInvalidPath("url:" + secretPath, handler);
+			testInvalidPath("/url:" + secretPath, handler);
+			testInvalidPath("/../.." + secretPath, handler);
+			testInvalidPath("/%2E%2E/testsecret/secret.txt", handler);
+			testInvalidPath("/%2E%2E/testsecret/secret.txt", handler);
+		}
+>>>>>>> 3bfbe30a78 (Normalize static resource path early)
 
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT);
 		assertThat(exchange.getResponse().getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
@@ -622,10 +633,20 @@ public class ResourceWebHandlerTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
 		setPathWithinHandlerMapping(exchange, "foo.txt");
 
+<<<<<<< HEAD
 		StepVerifier.create(this.handler.handle(exchange))
 				.expectNextCount(0)
 				.expectComplete()
 				.verify();
+=======
+			testResolvePathWithTraversal(method, "file:" + secretPath);
+			testResolvePathWithTraversal(method, "/file:" + secretPath);
+			testResolvePathWithTraversal(method, "url:" + secretPath);
+			testResolvePathWithTraversal(method, "/url:" + secretPath);
+			testResolvePathWithTraversal(method, "////../.." + secretPath);
+			testResolvePathWithTraversal(method, "/%2E%2E/testsecret/secret.txt");
+			testResolvePathWithTraversal(method, "url:" + secretPath);
+>>>>>>> 3bfbe30a78 (Normalize static resource path early)
 
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
 		assertThat(exchange.getResponse().getHeaders().getFirst("Accept-Ranges")).isEqualTo("bytes");

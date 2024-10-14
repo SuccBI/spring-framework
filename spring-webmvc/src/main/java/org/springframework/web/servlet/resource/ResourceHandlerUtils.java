@@ -56,7 +56,23 @@ public abstract class ResourceHandlerUtils {
 	public static String normalizeInputPath(String path) {
 		path = StringUtils.replace(path, "\\", "/");
 		path = cleanDuplicateSlashes(path);
-		return cleanLeadingSlash(path);
+		path =  cleanLeadingSlash(path);
+		return normalizePath(path);
+	}
+
+	private static String normalizePath(String path) {
+		if (path.contains("%")) {
+			try {
+				path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+			}
+			catch (Exception ex) {
+				return "";
+			}
+			if (path.contains("../")) {
+				path = StringUtils.cleanPath(path);
+			}
+		}
+		return path;
 	}
 
 	private static String cleanDuplicateSlashes(String path) {

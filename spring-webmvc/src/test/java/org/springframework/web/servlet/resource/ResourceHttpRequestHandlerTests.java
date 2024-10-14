@@ -641,11 +641,22 @@ public class ResourceHttpRequestHandlerTests {
 		this.request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
 		this.handler.handleRequest(this.request, this.response);
 
+<<<<<<< HEAD
 		assertThat(this.response.getStatus()).isEqualTo(416);
 		assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes */10");
 		assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
 		assertThat(this.response.getHeaders("Accept-Ranges").size()).isEqualTo(1);
 	}
+=======
+			testInvalidPath("file:" + secretPath);
+			testInvalidPath("/file:" + secretPath);
+			testInvalidPath("url:" + secretPath);
+			testInvalidPath("/url:" + secretPath);
+			testInvalidPath("/../.." + secretPath);
+			testInvalidPath("/%2E%2E/testsecret/secret.txt");
+			testInvalidPath("/%2E%2E/testsecret/secret.txt");
+		}
+>>>>>>> 3bfbe30a78 (Normalize static resource path early)
 
 	@Test
 	public void partialContentMultipleByteRanges() throws Exception {

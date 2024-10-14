@@ -76,8 +76,6 @@ class PathResourceLookupFunction implements Function<ServerRequest, Mono<Resourc
 			throw new UncheckedIOException(ex);
 		}
 	}
-
-
 	@Override
 	public String toString() {
 		return this.pattern + " -> " + this.location;

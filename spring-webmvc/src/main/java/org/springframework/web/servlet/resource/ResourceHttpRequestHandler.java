@@ -630,7 +630,68 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 	 * @since 3.2.12
 	 */
 	protected String processPath(String path) {
+<<<<<<< HEAD
 		return ResourceHandlerUtils.normalizeInputPath(path);
+=======
+		path = StringUtils.replace(path, "\\", "/");
+		path = cleanDuplicateSlashes(path);
+		path = cleanLeadingSlash(path);
+		return normalizePath(path);
+	}
+
+	private String cleanDuplicateSlashes(String path) {
+		StringBuilder sb = null;
+		char prev = 0;
+		for (int i = 0; i < path.length(); i++) {
+			char curr = path.charAt(i);
+			try {
+				if ((curr == '/') && (prev == '/')) {
+					if (sb == null) {
+						sb = new StringBuilder(path.substring(0, i));
+					}
+					continue;
+				}
+				if (sb != null) {
+					sb.append(path.charAt(i));
+				}
+			}
+			finally {
+				prev = curr;
+			}
+		}
+		return (sb != null ? sb.toString() : path);
+	}
+
+	private String cleanLeadingSlash(String path) {
+		boolean slash = false;
+		for (int i = 0; i < path.length(); i++) {
+			if (path.charAt(i) == '/') {
+				slash = true;
+			}
+			else if (path.charAt(i) > ' ' && path.charAt(i) != 127) {
+				if (i == 0 || (i == 1 && slash)) {
+					return path;
+				}
+				return (slash ? "/" + path.substring(i) : path.substring(i));
+			}
+		}
+		return (slash ? "/" : "");
+>>>>>>> 3bfbe30a78 (Normalize static resource path early)
+	}
+
+	private static String normalizePath(String path) {
+		if (path.contains("%")) {
+			try {
+				path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+			}
+			catch (Exception ex) {
+				return "";
+			}
+			if (path.contains("../")) {
+				path = StringUtils.cleanPath(path);
+			}
+		}
+		return path;
 	}
 
 	/**
@@ -639,6 +700,33 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 	 * <p>By default, this method does not perform any validations.
 	 */
 	protected boolean isInvalidPath(String path) {
+<<<<<<< HEAD
+=======
+		if (path.contains("WEB-INF") || path.contains("META-INF")) {
+			if (logger.isWarnEnabled()) {
+				logger.warn(LogFormatUtils.formatValue(
+						"Path with \"WEB-INF\" or \"META-INF\": [" + path + "]", -1, true));
+			}
+			return true;
+		}
+		if (path.contains(":/")) {
+			String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
+			if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(LogFormatUtils.formatValue(
+							"Path represents URL or has \"url:\" prefix: [" + path + "]", -1, true));
+				}
+				return true;
+			}
+		}
+		if (path.contains("../")) {
+			if (logger.isWarnEnabled()) {
+				logger.warn(LogFormatUtils.formatValue(
+						"Path contains \"../\" after call to StringUtils#cleanPath: [" + path + "]", -1, true));
+			}
+			return true;
+		}
+>>>>>>> 3bfbe30a78 (Normalize static resource path early)
 		return false;
 	}
 

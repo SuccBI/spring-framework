@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Mono;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.Hints;
@@ -56,6 +54,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebHandler;
 import org.springframework.web.util.pattern.PathPattern;
+
+import reactor.core.publisher.Mono;
 
 /**
  * {@code HttpRequestHandler} that serves static resources in an optimized way
@@ -461,7 +461,7 @@ public class ResourceWebHandler implements WebHandler, InitializingBean {
 	protected Mono<Resource> getResource(ServerWebExchange exchange) {
 		String rawPath = getResourcePath(exchange);
 		String path = processPath(rawPath);
-		if (ResourceHandlerUtils.shouldIgnoreInputPath(path) || isInvalidPath(path)) {
+		if (ResourceHandlerUtils.shouldIgnoreInputPath(path)) {
 			return Mono.empty();
 		}
 
@@ -478,15 +478,6 @@ public class ResourceWebHandler implements WebHandler, InitializingBean {
 	 */
 	protected String processPath(String path) {
 		return ResourceHandlerUtils.normalizeInputPath(path);
-	}
-
-	/**
-	 * Invoked after {@link ResourceHandlerUtils#isInvalidPath(String)}
-	 * to allow subclasses to perform further validation.
-	 * <p>By default, this method does not perform any validations.
-	 */
-	protected boolean isInvalidPath(String path) {
-		return false;
 	}
 
 	@Nullable

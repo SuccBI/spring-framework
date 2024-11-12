@@ -91,7 +91,6 @@ class PathResourceLookupFunction implements Function<ServerRequest, Optional<Res
 	protected String processPath(String path) {
 		return ResourceHandlerUtils.normalizeInputPath(path);
 	}
-
 	@Override
 	public String toString() {
 		return this.pattern + " -> " + this.location;

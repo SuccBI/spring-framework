@@ -30,6 +30,7 @@ import org.springframework.core.log.LogFormatUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.ServletContextResource;
+import org.springframework.web.util.UriUtils;
 
 /**
  * Resource handling utility methods to share common logic between
@@ -56,23 +57,32 @@ public abstract class ResourceHandlerUtils {
 	public static String normalizeInputPath(String path) {
 		path = StringUtils.replace(path, "\\", "/");
 		path = cleanDuplicateSlashes(path);
-		path =  cleanLeadingSlash(path);
+		path = cleanLeadingSlash(path);
 		return normalizePath(path);
 	}
 
 	private static String normalizePath(String path) {
-		if (path.contains("%")) {
-			try {
-				path = URLDecoder.decode(path, StandardCharsets.UTF_8);
-			}
-			catch (Exception ex) {
-				return "";
-			}
-			if (path.contains("../")) {
-				path = StringUtils.cleanPath(path);
-			}
+		String result = path;
+		result = decode(result);
+		if (result.contains("%")) {
+			result = decode(result);
+		}
+		if (!StringUtils.hasText(result)) {
+			return result;
+		}
+		if (result.contains("../")) {
+			return StringUtils.cleanPath(result);
 		}
 		return path;
+	}
+
+	private static String decode(String path) {
+		try {
+			return UriUtils.decode(path, StandardCharsets.UTF_8);
+		}
+		catch (Exception ex) {
+			return "";
+		}
 	}
 
 	private static String cleanDuplicateSlashes(String path) {

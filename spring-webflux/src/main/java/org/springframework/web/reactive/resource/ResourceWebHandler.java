@@ -448,18 +448,11 @@ public class ResourceWebHandler implements WebHandler, InitializingBean {
 				});
 	}
 
-	private String getResourcePath(ServerWebExchange exchange) {
-		PathPattern pattern = exchange.getRequiredAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-		if (!pattern.hasPatternSyntax()) {
-			return pattern.getPatternString();
-		}
-		PathContainer pathWithinHandler = exchange.getRequiredAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		return pathWithinHandler.value();
-	}
-
 
 	protected Mono<Resource> getResource(ServerWebExchange exchange) {
-		String rawPath = getResourcePath(exchange);
+		String name = HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE;
+		PathContainer pathWithinHandler = exchange.getRequiredAttribute(name);
+		String rawPath = pathWithinHandler.value();
 		String path = processPath(rawPath);
 		if (ResourceHandlerUtils.shouldIgnoreInputPath(path)) {
 			return Mono.empty();

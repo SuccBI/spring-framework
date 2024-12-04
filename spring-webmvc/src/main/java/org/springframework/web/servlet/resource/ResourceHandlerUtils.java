@@ -17,6 +17,7 @@
 package org.springframework.web.servlet.resource;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -185,7 +186,7 @@ public abstract class ResourceHandlerUtils {
 		if (path.contains("%")) {
 			try {
 				// Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars
-				String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+				String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8.toString());
 				if (isInvalidPath(decodedPath)) {
 					return true;
 				}
@@ -194,7 +195,7 @@ public abstract class ResourceHandlerUtils {
 					return true;
 				}
 			}
-			catch (IllegalArgumentException ex) {
+			catch (IllegalArgumentException | UnsupportedEncodingException ex) {
 				// May not be possible to decode...
 			}
 		}
@@ -216,11 +217,13 @@ public abstract class ResourceHandlerUtils {
 			resourcePath = resource.getURL().toExternalForm();
 			locationPath = StringUtils.cleanPath(location.getURL().toString());
 		}
-		else if (resource instanceof ClassPathResource classPathResource) {
+		else if (resource instanceof ClassPathResource) {
+			ClassPathResource classPathResource = (ClassPathResource) resource;
 			resourcePath = classPathResource.getPath();
 			locationPath = StringUtils.cleanPath(((ClassPathResource) location).getPath());
 		}
-		else if (resource instanceof ServletContextResource servletContextResource) {
+		else if (resource instanceof ServletContextResource) {
+			ServletContextResource servletContextResource = (ServletContextResource) resource;
 			resourcePath = servletContextResource.getPath();
 			locationPath = StringUtils.cleanPath(((ServletContextResource) location).getPath());
 		}
@@ -240,14 +243,14 @@ public abstract class ResourceHandlerUtils {
 		if (resourcePath.contains("%")) {
 			// Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars...
 			try {
-				String decodedPath = URLDecoder.decode(resourcePath, StandardCharsets.UTF_8);
+				String decodedPath = URLDecoder.decode(resourcePath, StandardCharsets.UTF_8.toString());
 				if (decodedPath.contains("../") || decodedPath.contains("..\\")) {
 					logger.warn(LogFormatUtils.formatValue(
 							"Resolved resource path contains encoded \"../\" or \"..\\\": " + resourcePath, -1, true));
 					return true;
 				}
 			}
-			catch (IllegalArgumentException ex) {
+			catch (IllegalArgumentException | UnsupportedEncodingException ex) {
 				// May not be possible to decode...
 			}
 		}
